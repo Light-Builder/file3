@@ -1,6 +1,15 @@
 import os
+import logging
+import traceback
 import discord
 from discord.ext import commands
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logger = logging.getLogger(__name__)
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -14,6 +23,8 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 @bot.command()
 @commands.has_permissions(administrator=True)
 async def setup(ctx, type=None):
+    logger.info("setup command invoked by %s (ID: %s) in guild '%s' with type=%r",
+                ctx.author, ctx.author.id, ctx.guild, type)
 
     if type is None:
         await ctx.send("Usage: !setup basic / normal / legendary")
@@ -145,8 +156,15 @@ async def setup_error(ctx, error):
 # =========================
 @bot.event
 async def on_ready():
-    print(f"✅ Logged in as {bot.user} (ID: {bot.user.id})")
-    print(f"Connected to {len(bot.guilds)} guild(s). Waiting for commands...")
+    logger.info("✅ Logged in as %s (ID: %s)", bot.user, bot.user.id)
+    logger.info("Connected to %d guild(s). Waiting for commands...", len(bot.guilds))
+
+# =========================
+# ON ERROR
+# =========================
+@bot.event
+async def on_error(event, *args, **kwargs):
+    logger.error("Unhandled exception in event '%s':\n%s", event, traceback.format_exc())
 
 # =========================
 # RUN BOT
@@ -154,7 +172,7 @@ async def on_ready():
 try:
     bot.run(os.getenv("DISCORD_TOKEN"))
 except discord.LoginFailure as e:
-    print(f"❌ Login failed — invalid token: {e}")
+    logger.critical("❌ Login failed — invalid token: %s", e)
 except Exception as e:
-    print(f"❌ Unexpected error while running bot: {e}")
+    logger.critical("❌ Unexpected error while running bot: %s", e, exc_info=True)
     raise
