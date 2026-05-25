@@ -141,6 +141,20 @@ async def setup_error(ctx, error):
         await ctx.send("❌ You need administrator permission!")
 
 # =========================
+# ON READY
+# =========================
+@bot.event
+async def on_ready():
+    print(f"✅ Logged in as {bot.user} (ID: {bot.user.id})")
+    print(f"Connected to {len(bot.guilds)} guild(s). Waiting for commands...")
+
+# =========================
 # RUN BOT
 # =========================
-bot.run(os.getenv("DISCORD_TOKEN"))
+try:
+    bot.run(os.getenv("DISCORD_TOKEN"))
+except discord.LoginFailure as e:
+    print(f"❌ Login failed — invalid token: {e}")
+except Exception as e:
+    print(f"❌ Unexpected error while running bot: {e}")
+    raise
