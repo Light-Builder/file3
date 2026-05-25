@@ -33,6 +33,18 @@ async def setup(ctx, type=None):
     guild = ctx.guild
 
     # =========================
+    # DELETE EXISTING CHANNELS
+    # =========================
+    for channel in guild.channels:
+        if isinstance(channel, (discord.TextChannel, discord.VoiceChannel, discord.CategoryChannel)):
+            try:
+                await channel.delete()
+            except discord.Forbidden:
+                logger.warning("Missing permissions to delete channel '%s' (ID: %s)", channel.name, channel.id)
+            except discord.HTTPException as e:
+                logger.warning("Failed to delete channel '%s' (ID: %s): %s", channel.name, channel.id, e)
+
+    # =========================
     # BASIC SERVER
     # =========================
     if type.lower() == "basic":
