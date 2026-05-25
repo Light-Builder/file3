@@ -1,3 +1,4 @@
+import os
 import discord
 from discord.ext import commands
 
@@ -142,4 +143,4 @@ async def setup_error(ctx, error):
 # =========================
 # RUN BOT
 # =========================
-bot.run("bot token")
+bot.run(os.getenv("DISCORD_TOKEN"))
